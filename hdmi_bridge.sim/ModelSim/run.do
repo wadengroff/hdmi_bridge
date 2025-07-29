@@ -1,0 +1,1 @@
+vsim -L unisim work.hdmi_bridge_top_tb
