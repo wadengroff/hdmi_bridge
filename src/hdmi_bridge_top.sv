@@ -142,7 +142,7 @@ IBUFDS #(
 OBUFDS #(
     .IOSTANDARD("TMDS_33")
 ) hdmi_clk_buf_out (
-    .I(hdmi_clk_dly1),
+    .I(hdmi_clk),//hdmi_clk_dly1),
     .O(hdmi_tx_clk_p_p), // output p-side
     .OB(hdmi_tx_clk_n_p) // Output n-side
 );
@@ -163,7 +163,7 @@ for (i = 0; i <= 2; i++) begin
     OBUFDS #(
         .IOSTANDARD("TMDS_33")
     ) hdmi_d_buf_out (
-        .I(hdmi_d_dly1[i]),
+        .I(hdmi_d),//hdmi_d_dly1[i]),
         .O(hdmi_tx_d_p_p[i]),
         .OB(hdmi_tx_d_n_p[i])
     );
@@ -254,22 +254,13 @@ probes probes_inst (
     .ila0_p(hdmi_d_dly1),
     .ila1_p(hdmi_tx_cec_ten_s),
     .ila2_p(hdmi_rx_cec_ten_s),
-    .ila3_p(hdmi_clk_dly1),
+    .ila3_p(hdmi_tx_cec_dly1),
     .ila4_p(hdmi_rx_scl_dly1),
     .ila5_p(hdmi_rx_sda_dly1),
     .ila6_p(hdmi_tx_sda_dly1),
     .ila7_p(i2c_state_s)
 );
 
-
-// INSTANTIATE LOGIC PROBE
-//ila_0 probe0 (
-//    .clk_p(clk_p),
-//    .probe0(hdmi_d_dly1),
-//    .probe1(hdmi_rx_hpd_dly1),
-//    .probe2(hdmi_rx_cec_dly1),
-//    .probe3(hdmi_clk_dly1)
-//);
 
 
 endmodule
