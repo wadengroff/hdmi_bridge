@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xE7E432080D2CF910",
+      "boundary_crc": "0xCFD38C1C3B4BD538",
       "device": "xc7z020clg400-1",
       "gen_directory": "../../../../hdmi_bridge.gen/sources_1/bd/probes",
       "name": "probes",
@@ -94,6 +94,18 @@
             "value_src": "default"
           }
         }
+      },
+      "ila8_p": {
+        "type": "data",
+        "direction": "I",
+        "left": "9",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
       }
     },
     "components": {
@@ -111,13 +123,16 @@
             "value": "Native"
           },
           "C_NUM_OF_PROBES": {
-            "value": "8"
+            "value": "9"
           },
           "C_PROBE0_WIDTH": {
             "value": "3"
           },
           "C_PROBE7_WIDTH": {
             "value": "3"
+          },
+          "C_PROBE8_WIDTH": {
+            "value": "10"
           }
         }
       }
@@ -231,6 +246,12 @@
         "ports": [
           "ila7_p",
           "ila_0/probe7"
+        ]
+      },
+      "ila8_p_1": {
+        "ports": [
+          "ila8_p",
+          "ila_0/probe8"
         ]
       }
     }

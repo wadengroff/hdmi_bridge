@@ -17,12 +17,16 @@ package core_pkg;
 
     localparam int SYNCH_CNTR_WIDTH_c = 32;
 
+    localparam logic [3:0] [9:0] CONTROL_PERIOD_ENCODINGS_C = {
+        10'h2AB, 10'h154, 10'hAB, 10'h354
+    };
 
     // constant guardband values for a control period leading into a video period
     // used for character syncrhonization
     localparam logic [9:0] VIDEO_LEADING_GUARDBAND_c = {
         10'b1011001100, 10'b0100110011, 10'b1011001100
     };
+    // 0x5, 0x2, 0x5, 5, 2, 2, 5, 5, 2, 2
 
 
     // constant guardband values for a control period leading into a data island period
