@@ -151,6 +151,7 @@ logic hdmi_clk_buf;
   // SERDES INTERFACE
 logic serial_clk_unbuff, serial_clk_n_unbuff;  // 5x tmds_clk
 logic serial_clk, serial_clk_n;
+logic serial_clk_locked;
 clk_wiz_0 tmds_mult_5
     (
     // Clock out ports
@@ -159,7 +160,7 @@ clk_wiz_0 tmds_mult_5
     // Status and control signals
     .reset(0), // input reset
     .input_clk_stopped(),
-    .locked(locked),       // output locked
+    .locked(serial_clk_locked),       // output locked
     // Clock in ports
     .clk_in1_p(hdmi_rx_clk_p_p),    // input clk_in1_p
     .clk_in1_n(hdmi_rx_clk_n_p)    // input clk_in1_n
@@ -176,21 +177,20 @@ clk_wiz_0 tmds_mult_5
 //     .O(serial_clk_n)
 // );
 
-logic word_clk;
+logic word_clk_prebuf, word_clk;
 BUFR #(
     .BUFR_DIVIDE("5"),
     .SIM_DEVICE("7SERIES")
 ) div_word_clk (
-    .O(word_clk),
+    .O(word_clk_prebuf),
     .CE(1),
     .CLR(0),
     .I(serial_clk)
 );
 
-logic word_clk_global;
 BUFG glob_word_clk (
-    .I(word_clk),
-    .O(word_clk_global)
+    .I(word_clk_prebuf),
+    .O(word_clk)
 );
 
 logic clk_200; // USED TO GENERATE TAP DELAYS
@@ -235,13 +235,35 @@ for (i = 0; i <= 2; i++) begin
 end
 
 
+logic [2:0][9:0] hdmi_data_word_outputs;
+always_ff @(posedge word_clk) begin
+    if (synchronized == 3'b111) begin
+        hdmi_data_word_outputs <= hdmi_data_words;
+    end else begin
+        hdmi_data_word_outputs <= {0,0,0};
+    end
+end
+
+logic [2:0] reset_output;
+logic [2:0] hdmi_tx_data_out;
+for (i = 0; i <= 2; i++) begin
+    hdmi_d_output inst_otp (
+        .serial_clk(serial_clk),
+        .serial_clk_locked(serial_clk_locked),
+        .word_clk(word_clk),
+        .data_in(hdmi_data_word_outputs[i]),
+        .data_out(hdmi_tx_data_out[i]),
+        .reset_out(reset_output)
+    );
+end
+
 
 
 // Output buffer for tx clock
 OBUFDS #(
     .IOSTANDARD("TMDS_33")
 ) hdmi_clk_buf_out (
-    .I(word_clk_global),
+    .I(word_clk),
     .O(hdmi_tx_clk_p_p), // output p-side
     .OB(hdmi_tx_clk_n_p) // Output n-side
 );
@@ -275,7 +297,7 @@ for (i = 0; i <= 2; i++) begin
     OBUFDS #(
         .IOSTANDARD("TMDS_33")
     ) hdmi_d_buf_out (
-        .I(hdmi_d[i]),//hdmi_d_dly1[i]),
+        .I(hdmi_tx_data_out[i]),//hdmi_d_dly1[i]),
         .O(hdmi_tx_d_p_p[i]),
         .OB(hdmi_tx_d_n_p[i])
     );
@@ -295,14 +317,6 @@ i2c_tristate_handler inst_i2c (
     .subordinate_sda_ten_p(hdmi_tx_ten_s),
     .i2c_state_p(i2c_state_s)
 );
-
-// open_drain_passthrough inst_i2c (
-//     .clk_p(clk_p),
-//     .data_side0_p(hdmi_tx_sda_dly1),
-//     .data_side1_p(hdmi_rx_sda_dly1),
-//     .ten_side0_p(hdmi_tx_ten_s),
-//     .ten_side1_p(hdmi_rx_ten_s)
-// );
 
 
 //////////////////////////////////////////////
@@ -416,8 +430,8 @@ probes pixel_ila_inst (
     .ila2_p(bitslip_dly1[0]),
     .ila3_p(bitslip_dly1[1]),
     .ila4_p(bitslip_dly1[2]),
-    .ila5_p(0),
-    .ila6_p(0),
+    .ila5_p(reset_output),
+    .ila6_p(serial_clk_locked),
     .ila7_p(0),
     .ila8_p(deb_dat1)
 );

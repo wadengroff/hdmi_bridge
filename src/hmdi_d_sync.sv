@@ -166,8 +166,8 @@ serdes_wrapper  #(
    .BITSLIP(bitslip_s),
    .SHIFTIN1(shiftout1_s),
    .SHIFTIN2(shiftout2_s),
-   .Q1(word_out[1]),
-   .Q2(word_out[0])
+   .Q3(word_out[1]),     // datasheet said to use these
+   .Q4(word_out[0])
 );
 
 endmodule
