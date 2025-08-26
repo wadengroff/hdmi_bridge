@@ -26,7 +26,9 @@
 //
 //
 
-
+// import package constants
+`include "core_pkg.svh"
+import core_pkg::*;
 
 
 module hdmi_bridge_top (
@@ -56,6 +58,9 @@ module hdmi_bridge_top (
     output logic [3:0] leds_p
 );
 
+logic clk_125;
+assign clk_125 = clk_p;
+
 logic hdmi_clk;
 logic [2:0] hdmi_d;
 
@@ -74,6 +79,16 @@ logic hdmi_rx_cec_ten_s;
 logic hdmi_rx_ten_s;
 logic hdmi_tx_ten_s;
 
+// Delay all of the internal signals into the current clock domain
+logic hdmi_clk_dly0, hdmi_clk_dly1;
+logic [2:0] hdmi_d_dly0, hdmi_d_dly1;
+logic hdmi_rx_sda_dly0, hdmi_rx_sda_dly1;
+logic hdmi_tx_sda_dly0, hdmi_tx_sda_dly1;
+logic hdmi_rx_cec_dly0, hdmi_rx_cec_dly1;
+logic hdmi_tx_cec_dly0, hdmi_tx_cec_dly1;
+logic hdmi_rx_hpd_dly0, hdmi_rx_hpd_dly1;
+logic hdmi_rx_scl_dly0, hdmi_rx_scl_dly1;
+
 assign leds_p[0] = hdmi_rx_hpd_p;
 
 // directly link together the non-differential pairs
@@ -84,15 +99,7 @@ assign hdmi_tx_scl_p = hdmi_rx_scl_dly1;
 localparam clk_freq = 125*10**6;
 
 //////////////////////////////////////////////////////////////////
-// Delay all of the internal signals into the current clock domain
-logic hdmi_clk_dly0, hdmi_clk_dly1;
-logic [2:0] hdmi_d_dly0, hdmi_d_dly1;
-logic hdmi_rx_sda_dly0, hdmi_rx_sda_dly1;
-logic hdmi_tx_sda_dly0, hdmi_tx_sda_dly1;
-logic hdmi_rx_cec_dly0, hdmi_rx_cec_dly1;
-logic hdmi_tx_cec_dly0, hdmi_tx_cec_dly1;
-logic hdmi_rx_hpd_dly0, hdmi_rx_hpd_dly1;
-logic hdmi_rx_scl_dly0, hdmi_rx_scl_dly1;
+
 
 always_ff @(posedge clk_p) begin
 
@@ -195,11 +202,11 @@ BUFG glob_word_clk (
 
 // MAYBE ADD A GLOBAL BUFFER FOR SERAIAL
 
-logic clk_200; // USED TO GENERATE TAP DELAYS
-clk_wiz_1 gen_clk200
+logic clk_300; // USED TO GENERATE TAP DELAYS
+clk_wiz_1 gen_clk300
    (
     // Clock out ports
-    .clk_200(clk_200),     // output clk_200
+    .clk_300(clk_300),     // output clk_300
     // Status and control signals
     .reset(0), // input reset
     .locked(),       // output locked
@@ -213,7 +220,7 @@ logic rdy;
 (* IODELAY_GROUP = "delay_group" *)
 IDELAYCTRL IDELAYCTRL_inst (
    .RDY(rdy),       // 1-bit output: Ready output
-   .REFCLK(clk_200), // 1-bit input: Reference clock input
+   .REFCLK(clk_300), // 1-bit input: Reference clock input
    .RST(0)        // 1-bit input: Active high reset input
 );
 
@@ -222,19 +229,38 @@ logic [2:0] synchronized;
 logic [2:0][9:0] hdmi_data_words;
 logic [2:0][3:0] taps_s;
 logic [2:0] bitslip_s;
+sync_state_t [2:0] sync_states;
+logic [2:0] past_50ms_s;
+
+// Resets if hpd goes down, then sets when word_clk is enabled and hpd
+// asynchronous reset
+logic reset_serdes_reg = 1;
+always @(posedge word_clk or negedge hdmi_rx_hpd_dly1) begin
+    if (!hdmi_rx_hpd_dly1) begin
+        reset_serdes_reg <= 1;
+    end else if (hdmi_rx_hpd_dly1) begin
+        reset_serdes_reg <= 0;
+    end else begin
+        reset_serdes_reg <= 1;
+    end
+end
 
 genvar i;
 for (i = 0; i <= 2; i++) begin
     hdmi_d_sync inst_sync (
+        .clk_125(clk_125),
         .serial_clk(serial_clk),
         .serial_clk_n(serial_clk_n),
         .word_clk(word_clk),
+        .rst(reset_serdes_reg),
         .sync_en_p(~synchronized[i]),
         .datai_p(hdmi_d[i]),
         .word_out_p(hdmi_data_words[i]),
         .synchronized(synchronized[i]),
+        .sync_state_p(sync_states[i]),
         .bitslip_p(bitslip_s[i]),
-        .taps_p(taps_s[i])
+        .taps_p(taps_s[i]),
+        .past_50ms_p(past_50ms_s[i])
     );
 end
 
@@ -248,18 +274,16 @@ always_ff @(posedge word_clk) begin
     end
 end
 
-logic [2:0] reset_output;
 logic [2:0] hdmi_tx_data_out;
 logic [2:0] hdmi_tx_d_fb;
 for (i = 0; i <= 2; i++) begin
     hdmi_d_output inst_otp (
         .serial_clk(serial_clk),
-        .hpd(hdmi_rx_hpd_dly1),
+        .rst(reset_serdes_reg),
         .word_clk(word_clk),
         .data_in(hdmi_data_word_outputs[i]),
         .data_out(hdmi_tx_data_out[i]),
-        .data_out_fb(hdmi_tx_d_fb[i]),
-        .reset_out(reset_output)
+        .data_out_fb(hdmi_tx_d_fb[i])
     );
 end
 
@@ -470,9 +494,14 @@ logic [2:0] taps_dly0, taps_dly1;
 logic [9:0] par_data0, par_data0_dly;
 logic [9:0] par_data1, par_data1_dly;
 logic [9:0] par_data2, par_data2_dly;
+logic rst_dly0, rst_dly1;
+sync_state_t sync_state_dly0, sync_state_dly1;
 always_ff @(posedge clk_p) begin
    sync_dly0 <= synchronized;
    sync_dly1 <= sync_dly0;
+
+   sync_state_dly0 <= sync_states[0];
+   sync_state_dly1 <= sync_state_dly0;
 
    bitslip_dly0 <= bitslip_s;
    bitslip_dly1 <= bitslip_dly0;
@@ -481,30 +510,33 @@ always_ff @(posedge clk_p) begin
    taps_dly1 <= taps_dly0;
 
 
-    par_data0 <= hdmi_data_word_outputs[0];
+
+    rst_dly0 <= reset_serdes_reg;
+    rst_dly1 <= rst_dly0;
+
+    par_data0 <= hdmi_data_words[0];//hdmi_data_word_outputs[0];
     par_data0_dly <= par_data0;
-    par_data1_dly <= par_data0_dly;
-    par_data2_dly <= par_data1_dly;
+
    //par_data0 <= hdmi_fb_data[0]; //hdmi_data_words[0];
    //par_data0_dly <= par_data0;
 
-//    par_data1 <= hdmi_data_word_outputs[0]; //hdmi_data_words[0];
-//    par_data1_dly <= par_data0_dly;
+   par_data1 <= hdmi_data_words[1]; //hdmi_data_words[0];
+   par_data1_dly <= par_data1;
 
-//    par_data2 <= hdmi_fb_data[2]; //hdmi_data_words[0];
-//    par_data2_dly <= par_data1_dly;
+   par_data2 <= hdmi_data_words[2]; //hdmi_data_words[0];
+   par_data2_dly <= par_data2;
 end
 
 probes pixel_ila_inst (
     .clk_p(clk_p),      // use the slower clock so it doesn't blow up
     .ila0_p(sync_dly1),
-    .ila1_p(0),
+    .ila1_p(rst_dly1),
     .ila2_p(taps_dly1[0]),
     .ila3_p(taps_dly1[1]),
     .ila4_p(taps_dly1[2]),
-    .ila5_p(reset_output),
-    .ila6_p(serial_clk_locked),
-    .ila7_p(0),
+    .ila5_p(bitslip_dly1[0]),
+    .ila6_p(bitslip_dly1[1]),
+    .ila7_p(past_50ms_s),
     .ila8_p(par_data0_dly),
     .ila9_p(par_data1_dly),
     .ila10_p(par_data2_dly)

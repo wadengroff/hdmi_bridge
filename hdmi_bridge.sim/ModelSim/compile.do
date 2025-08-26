@@ -1,3 +1,11 @@
 vlog -reportprogress 300 -work work ./../../src/core_pkg.svh
+vlog -reportprogress 300 -work work ./../../src/serdes_wrapper.sv
+vlog -reportprogress 300 -work work ./../../src/hdmi_d_output.sv
+vlog -reportprogress 300 -work work ./../../src/hdmi_d_sync.sv
+vlog -reportprogress 300 -work work ./../../src/hdmi_d_sync_tb.sv
+vlog -reportprogress 300 -work work ./../../src/i2c_tristate_handler.sv
+vlog -reportprogress 300 -work work ./../../src/i2c_tristate_handler_tb.sv
+vlog -reportprogress 300 -work work ./../../src/open_drain_passthrough.sv
+vlog -reportprogress 300 -work work ./../../src/open_drain_passthrough_tb.sv
 vlog -reportprogress 300 -work work ./../../src/hdmi_bridge_top.sv
 vlog -reportprogress 300 -work work ./../../src/hdmi_bridge_top_tb.sv

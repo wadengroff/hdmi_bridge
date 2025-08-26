@@ -1,0 +1,1 @@
+vsim -L unisim -L secureip work.hdmi_d_sync_tb

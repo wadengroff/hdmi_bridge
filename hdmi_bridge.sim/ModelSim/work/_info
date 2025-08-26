@@ -11,60 +11,89 @@ cModel Technology
 Z0 dC:/Users/waden/Documents/VivadoProjects/hdmi_bridge/hdmi_bridge.sim/ModelSim
 Xcore_pkg
 Z1 DXx6 sv_std 3 std 0 22 VYECXdT12H8WgbUP_5Y6:3
-!s110 1753885910
+Z2 !s110 1756231892
 !i10b 1
-!s100 NEOg1BPITF1K6B1K1F7jD1
-Z2 !s11b Dg1SIo80bB@j0V0VzS_@n1
-ISj:]`KU1BCKz><DMMRD7T3
-VSj:]`KU1BCKz><DMMRD7T3
+!s100 3QQOFLnW>i=d5ND8dmBfR3
+Z3 !s11b Dg1SIo80bB@j0V0VzS_@n1
+IL7EDQFXgC4Zh@[?b9LIOk2
+VL7EDQFXgC4Zh@[?b9LIOk2
 S1
 R0
-w1751211586
-8./../../src/core_pkg.svh
-F./../../src/core_pkg.svh
-!i122 160
-L0 4 0
-Z3 OV;L;2020.1;71
+w1756221219
+8.\..\..\src\core_pkg.svh
+Z4 F.\..\..\src\core_pkg.svh
+!i122 519
+Z5 L0 4 0
+Z6 OV;L;2020.1;71
 r1
 !s85 0
 31
-!s108 1753885910.000000
-!s107 ./../../src/core_pkg.svh|
-!s90 -reportprogress|300|-work|work|./../../src/core_pkg.svh|
+Z7 !s108 1756231892.000000
+Z8 !s107 .\..\..\src\core_pkg.svh|./../../src/hdmi_bridge_top.sv|
+Z9 !s90 -reportprogress|300|-work|work|./../../src/hdmi_bridge_top.sv|
 !i113 1
-Z4 o-work work
-Z5 tCvgOpt 0
+Z10 o-work work
+Z11 tCvgOpt 0
 vhdmi_bridge_top
 R1
-Z6 !s110 1751225786
-!i10b 1
-!s100 M7l4`FPgQzZQaWJ4E@omh1
+Z12 DXx4 work 8 core_pkg 0 22 L7EDQFXgC4Zh@[?b9LIOk2
+DXx4 work 23 hdmi_bridge_top_sv_unit 0 22 o;fO[6nd5Q2`R6S18KP@12
 R2
-IaUgJB>>RC8a=7_8G;10JQ0
-Z7 VDg1SIo80bB@j0V0VzS_@n1
-S1
-R0
-w1751224616
-8./../../src/hdmi_bridge_top.sv
-F./../../src/hdmi_bridge_top.sv
-!i122 104
-L0 29 131
-R3
+Z13 VDg1SIo80bB@j0V0VzS_@n1
 r1
 !s85 0
+!i10b 1
+!s100 :Am4HZ:5F<gFdRJ0>bhg?1
+IDIOjaeDElMS8aK@<Qm=Zh2
+!s105 hdmi_bridge_top_sv_unit
+S1
+R0
+Z14 w1756223548
+Z15 8./../../src/hdmi_bridge_top.sv
+Z16 F./../../src/hdmi_bridge_top.sv
+!i122 519
+L0 34 514
+R6
 31
-Z8 !s108 1751225786.000000
-!s107 ./../../src/hdmi_bridge_top.sv|
-!s90 -reportprogress|300|-work|work|./../../src/hdmi_bridge_top.sv|
+R7
+R8
+R9
 !i113 1
+R10
+R11
+Xhdmi_bridge_top_sv_unit
+R1
+R12
+R2
+Vo;fO[6nd5Q2`R6S18KP@12
+r1
+!s85 0
+!i10b 1
+!s100 fBFkX3K^6jXHXA57<dSjh2
+Io;fO[6nd5Q2`R6S18KP@12
+!i103 1
+S1
+R0
+R14
+R15
+R16
 R4
-R5
+!i122 519
+L0 31 0
+R6
+31
+R7
+R8
+R9
+!i113 1
+R10
+R11
 vhdmi_bridge_top_tb
 R1
-Z9 DXx4 work 8 core_pkg 0 22 Sj:]`KU1BCKz><DMMRD7T3
+R12
 DXx4 work 26 hdmi_bridge_top_tb_sv_unit 0 22 [GV:>UczSF9Ec4b3IR7YL3
-R6
-R7
+R2
+R13
 r1
 !s85 0
 !i10b 1
@@ -73,23 +102,23 @@ I`A6aS[7hF6EeQJ84I_bB>1
 !s105 hdmi_bridge_top_tb_sv_unit
 S1
 R0
-Z10 w1751225779
-Z11 8./../../src/hdmi_bridge_top_tb.sv
-Z12 F./../../src/hdmi_bridge_top_tb.sv
-!i122 105
+Z17 w1751225779
+Z18 8./../../src/hdmi_bridge_top_tb.sv
+Z19 F./../../src/hdmi_bridge_top_tb.sv
+!i122 520
 L0 11 119
-R3
+R6
 31
-R8
-Z13 !s107 ./../../src/hdmi_bridge_top_tb.sv|
-Z14 !s90 -reportprogress|300|-work|work|./../../src/hdmi_bridge_top_tb.sv|
+R7
+!s107 ./../../src/hdmi_bridge_top_tb.sv|
+Z20 !s90 -reportprogress|300|-work|work|./../../src/hdmi_bridge_top_tb.sv|
 !i113 1
-R4
-R5
+R10
+R11
 Xhdmi_bridge_top_tb_sv_unit
 R1
-R9
-R6
+R12
+R2
 V[GV:>UczSF9Ec4b3IR7YL3
 r1
 !s85 0
@@ -99,75 +128,207 @@ I[GV:>UczSF9Ec4b3IR7YL3
 !i103 1
 S1
 R0
+R17
+R18
+R19
+!i122 520
+L0 9 0
+R6
+31
+R7
+Z21 !s107 ./../../src/hdmi_bridge_top_tb.sv|
+R20
+!i113 1
 R10
 R11
-R12
-!i122 105
-L0 9 0
-R3
-31
-R8
-R13
-R14
-!i113 1
-R4
-R5
-vi2c_tristate_handler
+vhdmi_d_output
 R1
-Z15 !s110 1753739386
+Z22 !s110 1756231891
 !i10b 1
-!s100 :ON7:D37lPF]HEUE<Lc=N1
-R2
-I`_Go@[:oLYMc?aLfT]hh<1
-R7
+!s100 O^R_iIz9gXXH;@3h?:`K]0
+R3
+ID?:FiV3j>:XZOG3<ZlW891
+R13
 S1
 R0
-w1753739382
-8./../../src/i2c_tristate_handler.sv
-F./../../src/i2c_tristate_handler.sv
-!i122 134
-L0 25 243
-R3
+w1756220226
+8./../../src/hdmi_d_output.sv
+F./../../src/hdmi_d_output.sv
+!i122 512
+L0 8 107
+R6
 r1
 !s85 0
 31
-Z16 !s108 1753739386.000000
+Z23 !s108 1756231891.000000
+!s107 ./../../src/hdmi_d_output.sv|
+!s90 -reportprogress|300|-work|work|./../../src/hdmi_d_output.sv|
+!i113 1
+R10
+R11
+vhdmi_d_sync
+R1
+R12
+DXx4 work 19 hdmi_d_sync_sv_unit 0 22 3@ZIgXAEcZeE?zM04dZgT3
+R22
+R13
+r1
+!s85 0
+!i10b 1
+!s100 IceX3cTzdNGI3FJZ^jN`h3
+I4V6WKTV^<2DkecPVBo>nL3
+!s105 hdmi_d_sync_sv_unit
+S1
+R0
+Z24 w1756231888
+Z25 8./../../src/hdmi_d_sync.sv
+Z26 F./../../src/hdmi_d_sync.sv
+!i122 513
+L0 11 267
+R6
+31
+R23
+Z27 !s107 .\..\..\src\core_pkg.svh|./../../src/hdmi_d_sync.sv|
+Z28 !s90 -reportprogress|300|-work|work|./../../src/hdmi_d_sync.sv|
+!i113 1
+R10
+R11
+Xhdmi_d_sync_sv_unit
+R1
+R12
+R22
+V3@ZIgXAEcZeE?zM04dZgT3
+r1
+!s85 0
+!i10b 1
+!s100 7eU`^T[`WX5DE;<ZoA=oU3
+I3@ZIgXAEcZeE?zM04dZgT3
+!i103 1
+S1
+R0
+R24
+R25
+R26
+R4
+!i122 513
+L0 7 0
+R6
+31
+R23
+R27
+R28
+!i113 1
+R10
+R11
+vhdmi_d_sync_tb
+R1
+R12
+DXx4 work 22 hdmi_d_sync_tb_sv_unit 0 22 mHOdXHo9;@d9c5_oVUFTg3
+R22
+R13
+r1
+!s85 0
+!i10b 1
+!s100 D1_lRhAXX2<d0P6d8z8^90
+IzYEfzEHdXCDK04J1;W0Fm3
+!s105 hdmi_d_sync_tb_sv_unit
+S1
+R0
+Z29 w1756231876
+Z30 8./../../src/hdmi_d_sync_tb.sv
+Z31 F./../../src/hdmi_d_sync_tb.sv
+!i122 514
+L0 6 89
+R6
+31
+R23
+Z32 !s107 ./../../src/hdmi_d_sync_tb.sv|
+Z33 !s90 -reportprogress|300|-work|work|./../../src/hdmi_d_sync_tb.sv|
+!i113 1
+R10
+R11
+Xhdmi_d_sync_tb_sv_unit
+R1
+R12
+R22
+VmHOdXHo9;@d9c5_oVUFTg3
+r1
+!s85 0
+!i10b 1
+!s100 B`U2k2R66FKk=FeaY<?SC1
+ImHOdXHo9;@d9c5_oVUFTg3
+!i103 1
+S1
+R0
+R29
+R30
+R31
+!i122 514
+R5
+R6
+31
+R23
+R32
+R33
+!i113 1
+R10
+R11
+vi2c_tristate_handler
+R1
+R22
+!i10b 1
+!s100 CeZ?4A6Xobg`?G6JjhNCR3
+R3
+IPPQRZXAUfmkGcL>eMT71<2
+R13
+S1
+R0
+w1753894918
+8./../../src/i2c_tristate_handler.sv
+F./../../src/i2c_tristate_handler.sv
+!i122 515
+L0 25 303
+R6
+r1
+!s85 0
+31
+R23
 !s107 ./../../src/i2c_tristate_handler.sv|
 !s90 -reportprogress|300|-work|work|./../../src/i2c_tristate_handler.sv|
 !i113 1
-R4
-R5
+R10
+R11
 vi2c_tristate_handler_tb
 R1
-R9
-DXx4 work 33 open_drain_passthrough_tb_sv_unit 0 22 oAV^aE?UXnRe2Ff60h9jf3
-!s110 1753885045
-R7
+R12
+DXx4 work 31 i2c_tristate_handler_tb_sv_unit 0 22 ;1@EW62FKkG6R1J_no02J1
+R22
+R13
 r1
 !s85 0
 !i10b 1
-!s100 3c`We>;aAmV3ZTdPVYV7S0
-I@1FiBI;VP;AoJ@l@aUK_i1
-Z17 !s105 open_drain_passthrough_tb_sv_unit
+!s100 l8;P;:^dN[o@`6=^k@hJX0
+IHKPW[G7Yim03<A87I1NSE3
+!s105 i2c_tristate_handler_tb_sv_unit
 S1
 R0
-w1753884945
-Z18 8./../../src/open_drain_passthrough_tb.sv
-Z19 F./../../src/open_drain_passthrough_tb.sv
-!i122 141
-L0 5 61
-R3
+Z34 w1753739179
+Z35 8./../../src/i2c_tristate_handler_tb.sv
+Z36 F./../../src/i2c_tristate_handler_tb.sv
+!i122 516
+L0 7 96
+R6
 31
-!s108 1753885045.000000
-!s107 ./../../src/open_drain_passthrough_tb.sv|
-Z20 !s90 -reportprogress|300|-work|work|./../../src/open_drain_passthrough_tb.sv|
+R23
+Z37 !s107 ./../../src/i2c_tristate_handler_tb.sv|
+Z38 !s90 -reportprogress|300|-work|work|./../../src/i2c_tristate_handler_tb.sv|
 !i113 1
-R4
-R5
+R10
+R11
 Xi2c_tristate_handler_tb_sv_unit
 R1
-R9
-R15
+R12
+R22
 V;1@EW62FKkG6R1J_no02J1
 r1
 !s85 0
@@ -177,75 +338,75 @@ I;1@EW62FKkG6R1J_no02J1
 !i103 1
 S1
 R0
-w1753739179
-8./../../src/i2c_tristate_handler_tb.sv
-F./../../src/i2c_tristate_handler_tb.sv
-!i122 135
+R34
+R35
+R36
+!i122 516
 L0 5 0
-R3
+R6
 31
-R16
-!s107 ./../../src/i2c_tristate_handler_tb.sv|
-!s90 -reportprogress|300|-work|work|./../../src/i2c_tristate_handler_tb.sv|
+R23
+R37
+R38
 !i113 1
-R4
-R5
+R10
+R11
 vopen_drain_passthrough
 R1
-Z21 !s110 1753885911
-!i10b 1
-!s100 _d:6TDgTjbcK=D5IkKo=z0
 R2
-I38FlHB7Y8GWKegALed3Go2
-R7
+!i10b 1
+!s100 lXDR;@2hz[HDk_5iCYnO80
+R3
+IM>:Hm3:PX=>jEbh4z@1zH0
+R13
 S1
 R0
-w1753885866
+w1753900459
 8./../../src/open_drain_passthrough.sv
 F./../../src/open_drain_passthrough.sv
-!i122 161
+!i122 517
 L0 25 82
-R3
+R6
 r1
 !s85 0
 31
-Z22 !s108 1753885911.000000
+R23
 !s107 ./../../src/open_drain_passthrough.sv|
 !s90 -reportprogress|300|-work|work|./../../src/open_drain_passthrough.sv|
 !i113 1
-R4
-R5
+R10
+R11
 vopen_drain_passthrough_tb
 R1
-R9
+R12
 DXx4 work 33 open_drain_passthrough_tb_sv_unit 0 22 =PZBB3>a>[4;VjfD[c4^=3
-R21
-R7
+R2
+R13
 r1
 !s85 0
 !i10b 1
 !s100 11Gc4a45ag>]k_[:eibQF3
 I2S<YJHXFi7184@L>7U_E@3
-R17
+!s105 open_drain_passthrough_tb_sv_unit
 S1
 R0
-Z23 w1753885764
-R18
-R19
-!i122 162
+Z39 w1753885764
+Z40 8./../../src/open_drain_passthrough_tb.sv
+Z41 F./../../src/open_drain_passthrough_tb.sv
+!i122 518
 L0 5 89
-R3
+R6
 31
-R22
-Z24 !s107 ./../../src/open_drain_passthrough_tb.sv|
-R20
+R7
+Z42 !s107 ./../../src/open_drain_passthrough_tb.sv|
+Z43 !s90 -reportprogress|300|-work|work|./../../src/open_drain_passthrough_tb.sv|
 !i113 1
-R4
-R5
+R10
+R11
 Xopen_drain_passthrough_tb_sv_unit
 R1
-R9
-R21
+R12
+R2
 V=PZBB3>a>[4;VjfD[c4^=3
 r1
 !s85 0
@@ -255,16 +416,41 @@ I=PZBB3>a>[4;VjfD[c4^=3
 !i103 1
 S1
 R0
-R23
-R18
-R19
-!i122 162
+R39
+R40
+R41
+!i122 518
 L0 3 0
-R3
+R6
 31
-R22
-R24
-R20
+R7
+R42
+R43
 !i113 1
-R4
-R5
+R10
+R11
+vserdes_wrapper
+R1
+R22
+!i10b 1
+!s100 NWj?W=dD9Dd37=g2MmS3N2
+R3
+IZAK6;czNOkXI^B1b]GZdG3
+R13
+S1
+R0
+w1756217504
+8./../../src/serdes_wrapper.sv
+F./../../src/serdes_wrapper.sv
+!i122 511
+L0 4 85
+R6
+r1
+!s85 0
+31
+!s108 1756231890.000000
+!s107 ./../../src/serdes_wrapper.sv|
+!s90 -reportprogress|300|-work|work|./../../src/serdes_wrapper.sv|
+!i113 1
+R10
+R11

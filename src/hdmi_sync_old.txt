@@ -1,0 +1,97 @@
+// logic bitslip_s;
+// assign bitslip_p = bitslip_s; // DEBUG
+
+// logic shiftout1_s, shiftout2_s;
+
+// logic [3:0] taps = 0;
+// assign taps_p = taps;
+// logic change_taps_s;
+// logic data_dly_s;
+
+// logic [3:0] tap_cnt_s = 0;
+// logic [2:0] bitslip_cnt_s = 0; // There are 8 bitslip states
+
+
+// logic [9:0] word_out;
+// assign word_out_p = word_out;
+
+// typedef enum logic {
+//    UNSYNC,
+//    SYNC
+// } sync_state_t;
+
+
+
+// sync_state_t sync_state_s = UNSYNC;
+
+// assign synchronized = (sync_state_s == SYNC) ? 1:0;
+
+// always_ff @(posedge word_clk) begin
+//    sync_state_s <= sync_state_s;
+
+//    if (sync_state_s == SYNC) begin
+//       bitslip_s <= 0;
+//       bitslip_cnt_s <= 0;
+//       tap_cnt_s <= 0;
+//       sync_state_s <= (sync_en_p) ? UNSYNC : SYNC;
+//       change_taps_s <= 0;
+//       taps <= taps;
+//    end else if (sync_state_s == UNSYNC) begin
+
+//       // Check if it matches any of the patterns, otherwise change parameters
+//       case (word_out)
+//          CONTROL_PERIOD_ENCODINGS_C[0]: begin
+//             sync_state_s <= SYNC;
+//             control_outputs_p <= 0;
+//             bitslip_cnt_s <= 0;
+//             bitslip_s <= 0;
+//             change_taps_s <= 0;
+//             taps <= taps;
+//          end
+//          CONTROL_PERIOD_ENCODINGS_C[1]: begin
+//             sync_state_s <= SYNC;
+//             control_outputs_p <= 1;
+//             bitslip_cnt_s <= 0;
+//             bitslip_s <= 0;
+//             change_taps_s <= 0;
+//             taps <= taps;
+//          end
+//          CONTROL_PERIOD_ENCODINGS_C[2]: begin
+//             sync_state_s <= SYNC;
+//             control_outputs_p <= 2;
+//             bitslip_cnt_s <= 0;
+//             bitslip_s <= 0;
+//             change_taps_s <= 0;
+//             taps <= taps;
+//          end
+//          CONTROL_PERIOD_ENCODINGS_C[3]: begin
+//             sync_state_s <= SYNC;
+//             control_outputs_p <= 3;
+//             bitslip_cnt_s <= 0;
+//             bitslip_s <= 0;
+//             change_taps_s <= 0;
+//             taps <= taps;
+//          end
+//          default: begin
+//             // get here if we don't ever see the correct pattern
+//             // always add 1 to the number of taps
+//             taps <= taps + 1;
+//             change_taps_s <= 1;
+
+//             sync_state_s <= UNSYNC;
+
+//             // If we went through all taps, reset and change bitslip
+//             if (tap_cnt_s == 4'b1111) begin
+//                tap_cnt_s <= 0;
+//                bitslip_cnt_s <= bitslip_cnt_s + 1;
+//                bitslip_s <= 1;
+//             end else begin
+//                tap_cnt_s <= tap_cnt_s + 1;
+//                bitslip_cnt_s <= bitslip_cnt_s;
+//                bitslip_s <= 0;
+//             end
+//          end
+//       endcase
+
+//    end
+// end

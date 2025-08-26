@@ -6,6 +6,7 @@ module serdes_wrapper #(parameter SERDES_MODE = "Master", OFB_USED = "FALSE",
     input logic serial_clk,  // 5x TMDS clock (sampled on +/- edges)
     input logic serial_clk_n, // USING THIS INVERTED CLOCK FROM THE MMCM IS BAD MAYBE
     input logic word_clk,    // TMDS clock speed (from serial_clk divider)
+    input logic rst,
     input logic D, DDLY,
     input logic OFB,
     input logic CE,
@@ -61,21 +62,22 @@ ISERDESE2 #(
 
     // CE1, CE2: 1-bit (each) input: Data register clock enable inputs
     .CE1(CE),
-    .CLKDIVP(0),           // 1-bit input: TBD
+    .CE2(CE),
+    .CLKDIVP(1'b0),           // 1-bit input: TBD
     // Clocks: 1-bit (each) input: ISERDESE2 clock input ports
     .CLK(serial_clk),                   // 1-bit input: High-speed clock
     .CLKB(serial_clk_n),                 // 1-bit input: High-speed secondary clock
     .CLKDIV(word_clk),             // 1-bit input: Divided clock
-    .OCLK(0),                 // 1-bit input: High speed output clock used when INTERFACE_TYPE="MEMORY"
+    .OCLK(1'b0),                 // 1-bit input: High speed output clock used when INTERFACE_TYPE="MEMORY"
     // Dynamic Clock Inversions: 1-bit (each) input: Dynamic clock inversion pins to switch clock polarity
-    .DYNCLKDIVSEL(0), // 1-bit input: Dynamic CLKDIV inversion
-    .DYNCLKSEL(0),       // 1-bit input: Dynamic CLK/CLKB inversion
+    .DYNCLKDIVSEL(1'b0), // 1-bit input: Dynamic CLKDIV inversion
+    .DYNCLKSEL(1'b0),       // 1-bit input: Dynamic CLK/CLKB inversion
     // Input Data: 1-bit (each) input: ISERDESE2 data input ports
     .D(D),                       // 1-bit input: Data input
     .DDLY(DDLY),                 // 1-bit input: Serial data from IDELAYE2
     .OFB(OFB),                   // 1-bit input: Data feedback from OSERDESE2
-    .OCLKB(0),               // 1-bit input: High speed negative edge output clock
-    .RST(0),                   // 1-bit input: Active high asynchronous reset
+    .OCLKB(1'b0),               // 1-bit input: High speed negative edge output clock
+    .RST(rst),                   // 1-bit input: Active high asynchronous reset
     // SHIFTIN1, SHIFTIN2: 1-bit (each) input: Data width expansion input ports
     .SHIFTIN1(SHIFTIN1),
     .SHIFTIN2(SHIFTIN2)

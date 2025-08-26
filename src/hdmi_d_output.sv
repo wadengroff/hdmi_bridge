@@ -7,30 +7,19 @@
 
 module hdmi_d_output (
     input logic serial_clk,
-    input logic hpd,
     input logic word_clk,
+    input logic rst,
     input logic [9:0] data_in,
     output logic data_out,
-    output logic data_out_fb,
-    output logic reset_out
+    output logic data_out_fb
 );
 
 
 // FIRST BIT OUT IS THE LSB
 // prot D1 appears first at output
 
-logic reset = 0;
-assign reset_out = reset;
 
-always @(posedge word_clk or negedge hpd) begin
-    if (!hpd) begin
-        reset <= 1;
-    end else if (hpd) begin
-        reset <= 0;
-    end else begin
-        reset <= 1;
-    end
-end
+
 
 logic SHIFTOUT1;
 logic SHIFTOUT2;
@@ -66,7 +55,7 @@ OSERDESE2 #(
    .D7(data_in[6]),
    .D8(data_in[7]),
    .OCE(1),                 // 1-bit input: Output data clock enable
-   .RST(reset),             // 1-bit input: Reset
+   .RST(rst),             // 1-bit input: Reset
    // SHIFTIN1 / SHIFTIN2: 1-bit (each) input: Data input expansion (1-bit each)
    .SHIFTIN1(SHIFTOUT1),
    .SHIFTIN2(SHIFTOUT2),
@@ -102,7 +91,7 @@ OSERDESE2 #(
    .D3(data_in[8]),     // datasheet said to use these
    .D4(data_in[9]),     // https://docs.amd.com/v/u/en-US/ug471_7Series_SelectIO
    .OCE(1),             // 1-bit input: Output data clock enable
-   .RST(reset),             // 1-bit input: Reset
+   .RST(rst),             // 1-bit input: Reset
    // SHIFTIN1 / SHIFTIN2: 1-bit (each) input: Data input expansion (1-bit each)
    .SHIFTOUT1(SHIFTOUT1),
    .SHIFTOUT2(SHIFTOUT2),

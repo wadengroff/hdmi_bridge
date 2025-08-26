@@ -7,6 +7,12 @@ package core_pkg;
 
     localparam int CLK_SPEED_c = 1e7;
     
+    typedef enum logic [1:0] {
+        INIT,
+        SEARCH_CTRL,
+        FOUND_CTRL,
+        SYNC
+    } sync_state_t;
 
     typedef enum logic [2:0] {
         IDLE,           // State before an HDMI cable is plugged in
