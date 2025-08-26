@@ -1,7 +1,7 @@
 {
   "design": {
     "design_info": {
-      "boundary_crc": "0xE7E432080D2CF910",
+      "boundary_crc": "0x94E322AACF1F3D98",
       "device": "xc7z020clg400-1",
       "gen_directory": "../../../../hdmi_bridge.gen/sources_1/bd/probes",
       "name": "probes",
@@ -94,6 +94,42 @@
             "value_src": "default"
           }
         }
+      },
+      "ila8_p": {
+        "type": "data",
+        "direction": "I",
+        "left": "9",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
+      },
+      "ila9_p": {
+        "type": "data",
+        "direction": "I",
+        "left": "9",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
+      },
+      "ila10_p": {
+        "type": "data",
+        "direction": "I",
+        "left": "9",
+        "right": "0",
+        "parameters": {
+          "LAYERED_METADATA": {
+            "value": "undef",
+            "value_src": "default"
+          }
+        }
       }
     },
     "components": {
@@ -104,20 +140,32 @@
         "xci_path": "ip\\probes_ila_0_0\\probes_ila_0_0.xci",
         "inst_hier_path": "ila_0",
         "parameters": {
+          "ALL_PROBE_SAME_MU_CNT": {
+            "value": "4"
+          },
           "C_DATA_DEPTH": {
-            "value": "131072"
+            "value": "4096"
           },
           "C_MONITOR_TYPE": {
             "value": "Native"
           },
           "C_NUM_OF_PROBES": {
-            "value": "8"
+            "value": "11"
           },
           "C_PROBE0_WIDTH": {
             "value": "3"
           },
+          "C_PROBE10_WIDTH": {
+            "value": "10"
+          },
           "C_PROBE7_WIDTH": {
             "value": "3"
+          },
+          "C_PROBE8_WIDTH": {
+            "value": "10"
+          },
+          "C_PROBE9_WIDTH": {
+            "value": "10"
           }
         }
       }
@@ -142,6 +190,12 @@
             "value": "true"
           }
         }
+      },
+      "ila10_p_1": {
+        "ports": [
+          "ila10_p",
+          "ila_0/probe10"
+        ]
       },
       "ila1_p_1": {
         "ports": [
@@ -231,6 +285,18 @@
         "ports": [
           "ila7_p",
           "ila_0/probe7"
+        ]
+      },
+      "ila8_p_1": {
+        "ports": [
+          "ila8_p",
+          "ila_0/probe8"
+        ]
+      },
+      "ila9_p_1": {
+        "ports": [
+          "ila9_p",
+          "ila_0/probe9"
         ]
       }
     }

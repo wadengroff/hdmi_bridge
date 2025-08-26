@@ -71,6 +71,14 @@ set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports {leds_p[3]}]
 set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33} [get_ports hdmi_rx_cec_p]
 set_property -dict {PACKAGE_PIN P19 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_n_p]
 set_property -dict {PACKAGE_PIN N18 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_p_p]
+create_clock -period 67.3401 -name hdmi_pix_clk -add [get_ports hdmi_rx_clk_p_p]
+
+# Create clock group to ignore timing between
+set_clock_groups -asynchronous -group [get_clocks hdmi_pix_clk] -group [get_clocks sys_clk_pin]
+
+# WORD CLOCKS SHOULD BE SYNCHRONOUS, IGNORE TIMING
+set_clock_groups -group [get_clocks word_clk] -group [get_clocks word_clk_1]
+
 set_property -dict {PACKAGE_PIN W20 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_d_n_p[0]}]
 set_property -dict {PACKAGE_PIN V20 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_d_p_p[0]}]
 set_property -dict {PACKAGE_PIN U20 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_d_n_p[1]}]
