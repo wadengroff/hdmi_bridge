@@ -4,3 +4,4 @@ hdmi_bridge.cache/
 hdmi_bridge.gen/
 hdmi_bridge.hw/
 hdmi_bridge.runs/
+hdmi_bridge.sim/ModelSim/work
