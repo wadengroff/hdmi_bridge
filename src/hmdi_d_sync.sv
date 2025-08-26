@@ -20,7 +20,8 @@ module hdmi_d_sync
    output logic [1:0] control_outputs_p,
 
    // DEBUG OUTPUTS
-   output bitslip_p
+   output logic bitslip_p,
+   output logic [3:0] taps_p
 );
 
 
@@ -30,6 +31,7 @@ assign bitslip_p = bitslip_s; // DEBUG
 logic shiftout1_s, shiftout2_s;
 
 logic [3:0] taps = 0;
+assign taps_p = taps;
 logic change_taps_s;
 logic data_dly_s;
 
@@ -53,17 +55,14 @@ assign synchronized = (sync_state_s == SYNC) ? 1:0;
 
 always_ff @(posedge word_clk) begin
    sync_state_s <= sync_state_s;
-   tap_cnt_s <= tap_cnt_s;
-   bitslip_cnt_s <= bitslip_cnt_s;
-   bitslip_s <= 0;
-   change_taps_s <= 0;
 
    if (sync_state_s == SYNC) begin
-      if (sync_en_p) begin       // go into synchronization mode
-         sync_state_s <= UNSYNC;
-         bitslip_cnt_s <= 0;
-         tap_cnt_s <= 0;
-      end
+      bitslip_s <= 0;
+      bitslip_cnt_s <= 0;
+      tap_cnt_s <= 0;
+      sync_state_s <= (sync_en_p) ? UNSYNC : SYNC;
+      change_taps_s <= 0;
+      taps <= taps;
    end else if (sync_state_s == UNSYNC) begin
 
       // Check if it matches any of the patterns, otherwise change parameters
@@ -71,23 +70,42 @@ always_ff @(posedge word_clk) begin
          CONTROL_PERIOD_ENCODINGS_C[0]: begin
             sync_state_s <= SYNC;
             control_outputs_p <= 0;
+            bitslip_cnt_s <= 0;
+            bitslip_s <= 0;
+            change_taps_s <= 0;
+            taps <= taps;
          end
          CONTROL_PERIOD_ENCODINGS_C[1]: begin
             sync_state_s <= SYNC;
             control_outputs_p <= 1;
+            bitslip_cnt_s <= 0;
+            bitslip_s <= 0;
+            change_taps_s <= 0;
+            taps <= taps;
          end
          CONTROL_PERIOD_ENCODINGS_C[2]: begin
             sync_state_s <= SYNC;
             control_outputs_p <= 2;
+            bitslip_cnt_s <= 0;
+            bitslip_s <= 0;
+            change_taps_s <= 0;
+            taps <= taps;
          end
          CONTROL_PERIOD_ENCODINGS_C[3]: begin
             sync_state_s <= SYNC;
             control_outputs_p <= 3;
+            bitslip_cnt_s <= 0;
+            bitslip_s <= 0;
+            change_taps_s <= 0;
+            taps <= taps;
          end
          default: begin
+            // get here if we don't ever see the correct pattern
             // always add 1 to the number of taps
             taps <= taps + 1;
             change_taps_s <= 1;
+
+            sync_state_s <= UNSYNC;
 
             // If we went through all taps, reset and change bitslip
             if (tap_cnt_s == 4'b1111) begin
@@ -96,6 +114,8 @@ always_ff @(posedge word_clk) begin
                bitslip_s <= 1;
             end else begin
                tap_cnt_s <= tap_cnt_s + 1;
+               bitslip_cnt_s <= bitslip_cnt_s;
+               bitslip_s <= 0;
             end
          end
       endcase
@@ -132,13 +152,16 @@ IDELAYE2_inst (
 
 // Instantiate master serdees2
 serdes_wrapper #(
-   .SERDES_MODE("Master")
+   .SERDES_MODE("Master"),
+   .OFB_USED("FALSE"),
+   .IOBDELAY("BOTH")
 ) master_serdes (
    .serial_clk(serial_clk),
    .serial_clk_n(serial_clk_n),
    .word_clk(word_clk),
-   .D(datai_p),
+   .D(0),
    .DDLY(data_dly_s),
+   .OFB(0),
    .CE(1),
    .BITSLIP(bitslip_s),
    .SHIFTOUT1(shiftout1_s),
@@ -155,13 +178,16 @@ serdes_wrapper #(
 
 // Instantiate slave serdese2
 serdes_wrapper  #(
-   .SERDES_MODE("Slave")
+   .SERDES_MODE("Slave"),
+   .OFB_USED("FALSE"),
+   .IOBDELAY("BOTH")
 ) slave_serdes (
    .serial_clk(serial_clk),
    .serial_clk_n(serial_clk_n),
    .word_clk(word_clk),
    .D(0),
    .DDLY(0),
+   .OFB(0),
    .CE(1),
    .BITSLIP(bitslip_s),
    .SHIFTIN1(shiftout1_s),

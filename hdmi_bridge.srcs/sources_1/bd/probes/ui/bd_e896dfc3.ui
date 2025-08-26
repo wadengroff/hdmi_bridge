@@ -1,31 +1,35 @@
 {
    "ActiveEmotionalView":"Default View",
-   "Default View_ScaleFactor":"1.49112",
-   "Default View_TopLeft":"-287,-298",
+   "Default View_ScaleFactor":"1.89465",
+   "Default View_TopLeft":"-214,-172",
    "ExpandedHierarchyInLayout":"",
-   "guistr":"# # String gsaved with Nlview 7.5.8 2022-09-21 7111 VDI=41 GEI=38 GUI=JA:10.0 threadsafe
+   "guistr":"# # String gsaved with Nlview 7.5.8 2022-09-21 7111 VDI=41 GEI=38 GUI=JA:10.0
 #  -string -flagsOSRD
-preplace port port-id_clk_p -pg 1 -lvl 0 -x -20 -y -280 -defaultsOSRD
-preplace port port-id_ila1_p -pg 1 -lvl 0 -x -20 -y -220 -defaultsOSRD
-preplace port port-id_ila2_p -pg 1 -lvl 0 -x -20 -y -190 -defaultsOSRD
-preplace port port-id_ila3_p -pg 1 -lvl 0 -x -20 -y -160 -defaultsOSRD
-preplace port port-id_ila4_p -pg 1 -lvl 0 -x -20 -y -130 -defaultsOSRD
+preplace port port-id_clk_p -pg 1 -lvl 0 -x -20 -y -310 -defaultsOSRD
+preplace port port-id_ila1_p -pg 1 -lvl 0 -x -20 -y -250 -defaultsOSRD
+preplace port port-id_ila2_p -pg 1 -lvl 0 -x -20 -y -220 -defaultsOSRD
+preplace port port-id_ila3_p -pg 1 -lvl 0 -x -20 -y -190 -defaultsOSRD
+preplace port port-id_ila4_p -pg 1 -lvl 0 -x -20 -y -160 -defaultsOSRD
 preplace port port-id_ila5_p -pg 1 -lvl 0 -x -20 -y -70 -defaultsOSRD
-preplace port port-id_ila6_p -pg 1 -lvl 0 -x -20 -y -40 -defaultsOSRD
-preplace portBus ila0_p -pg 1 -lvl 0 -x -20 -y -250 -defaultsOSRD
-preplace portBus ila7_p -pg 1 -lvl 0 -x -20 -y -10 -defaultsOSRD
-preplace portBus ila8_p -pg 1 -lvl 0 -x -20 -y 20 -defaultsOSRD
+preplace port port-id_ila6_p -pg 1 -lvl 0 -x -20 -y -100 -defaultsOSRD
+preplace portBus ila0_p -pg 1 -lvl 0 -x -20 -y -280 -defaultsOSRD
+preplace portBus ila7_p -pg 1 -lvl 0 -x -20 -y -130 -defaultsOSRD
+preplace portBus ila8_p -pg 1 -lvl 0 -x -20 -y -30 -defaultsOSRD
+preplace portBus ila9_p -pg 1 -lvl 0 -x -20 -y 0 -defaultsOSRD
+preplace portBus ila10_p -pg 1 -lvl 0 -x -20 -y 30 -defaultsOSRD
 preplace inst ila_0 -pg 1 -lvl 1 -x 230 -y -130 -defaultsOSRD
-preplace netloc clk_p_1 1 0 1 60 -280n
-preplace netloc ila0_p_1 1 0 1 50 -250n
-preplace netloc ila1_p_1 1 0 1 40 -220n
-preplace netloc ila2_p_1 1 0 1 30 -190n
-preplace netloc ila3_p_1 1 0 1 20 -160n
-preplace netloc ila4_p_1 1 0 1 60 -130n
-preplace netloc ila5_p_1 1 0 1 20 -100n
-preplace netloc ila6_p_1 1 0 1 30 -80n
-preplace netloc ila7_p_1 1 0 1 50 -60n
-preplace netloc ila8_p_1 1 0 1 60 -40n
+preplace netloc clk_p_1 1 0 1 70 -310n
+preplace netloc ila0_p_1 1 0 1 60 -280n
+preplace netloc ila1_p_1 1 0 1 50 -250n
+preplace netloc ila2_p_1 1 0 1 40 -220n
+preplace netloc ila3_p_1 1 0 1 30 -190n
+preplace netloc ila4_p_1 1 0 1 20 -160n
+preplace netloc ila5_p_1 1 0 1 70 -120n
+preplace netloc ila6_p_1 1 0 1 N -100
+preplace netloc ila7_p_1 1 0 1 20 -130n
+preplace netloc ila8_p_1 1 0 1 20 -60n
+preplace netloc ila9_p_1 1 0 1 40 -40n
+preplace netloc ila10_p_1 1 0 1 70 -20n
 levelinfo -pg 1 -20 230 330
 pagesize -pg 1 -db -bbox -sgen -150 -390 330 260
 "

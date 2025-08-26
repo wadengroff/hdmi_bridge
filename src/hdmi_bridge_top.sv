@@ -193,6 +193,8 @@ BUFG glob_word_clk (
     .O(word_clk)
 );
 
+// MAYBE ADD A GLOBAL BUFFER FOR SERAIAL
+
 logic clk_200; // USED TO GENERATE TAP DELAYS
 clk_wiz_1 gen_clk200
    (
@@ -218,6 +220,7 @@ IDELAYCTRL IDELAYCTRL_inst (
 
 logic [2:0] synchronized;
 logic [2:0][9:0] hdmi_data_words;
+logic [2:0][3:0] taps_s;
 logic [2:0] bitslip_s;
 
 genvar i;
@@ -230,7 +233,8 @@ for (i = 0; i <= 2; i++) begin
         .datai_p(hdmi_d[i]),
         .word_out_p(hdmi_data_words[i]),
         .synchronized(synchronized[i]),
-        .bitslip_p(bitslip_s[i])
+        .bitslip_p(bitslip_s[i]),
+        .taps_p(taps_s[i])
     );
 end
 
@@ -246,22 +250,72 @@ end
 
 logic [2:0] reset_output;
 logic [2:0] hdmi_tx_data_out;
+logic [2:0] hdmi_tx_d_fb;
 for (i = 0; i <= 2; i++) begin
     hdmi_d_output inst_otp (
         .serial_clk(serial_clk),
-        .serial_clk_locked(serial_clk_locked),
+        .hpd(hdmi_rx_hpd_dly1),
         .word_clk(word_clk),
         .data_in(hdmi_data_word_outputs[i]),
         .data_out(hdmi_tx_data_out[i]),
+        .data_out_fb(hdmi_tx_d_fb[i]),
         .reset_out(reset_output)
     );
 end
 
+// FEEDBACK DATA SYNC
+logic [2:0][9:0] hdmi_fb_data;
+for (i = 0; i <= 2; i++) begin
+    // Instantiate master serdees2
+    serdes_wrapper #(
+        .SERDES_MODE("Master"),
+        .OFB_USED("TRUE")
+    ) master_serdes (
+        .serial_clk(serial_clk),
+        .serial_clk_n(serial_clk_n),
+        .word_clk(word_clk),
+        .D(0),
+        .DDLY(0),
+        .OFB(hdmi_tx_d_fb[i]),
+        .CE(1),
+        .BITSLIP(0),
+        .SHIFTOUT1(shiftout1_s),
+        .SHIFTOUT2(shiftout2_s),
+        .Q1(hdmi_fb_data[i][9]),
+        .Q2(hdmi_fb_data[i][8]),
+        .Q3(hdmi_fb_data[i][7]),
+        .Q4(hdmi_fb_data[i][6]),
+        .Q5(hdmi_fb_data[i][5]),
+        .Q6(hdmi_fb_data[i][4]),
+        .Q7(hdmi_fb_data[i][3]),
+        .Q8(hdmi_fb_data[i][2])
+    );
+
+    // Instantiate slave serdese2
+    serdes_wrapper  #(
+        .SERDES_MODE("Slave"),
+        .OFB_USED("TRUE")
+    ) slave_serdes (
+        .serial_clk(serial_clk),
+        .serial_clk_n(serial_clk_n),
+        .word_clk(word_clk),
+        .D(0),
+        .DDLY(0),
+        .OFB(0),
+        .CE(1),
+        .BITSLIP(bitslip_s),
+        .SHIFTIN1(shiftout1_s),
+        .SHIFTIN2(shiftout2_s),
+        .Q3(hdmi_fb_data[i][1]),     // datasheet said to use these
+        .Q4(hdmi_fb_data[i][0])
+    );
+end
 
 
 // Output buffer for tx clock
 OBUFDS #(
-    .IOSTANDARD("TMDS_33")
+    .IOSTANDARD("TMDS_33"),
+    .SLEW("FAST")
 ) hdmi_clk_buf_out (
     .I(word_clk),
     .O(hdmi_tx_clk_p_p), // output p-side
@@ -295,7 +349,8 @@ for (i = 0; i <= 2; i++) begin
 
     // Output buffer for hdmi_tx_d_n_p
     OBUFDS #(
-        .IOSTANDARD("TMDS_33")
+        .IOSTANDARD("TMDS_33"),
+        .SLEW("FAST")
     ) hdmi_d_buf_out (
         .I(hdmi_tx_data_out[i]),//hdmi_d_dly1[i]),
         .O(hdmi_tx_d_p_p[i]),
@@ -411,7 +466,10 @@ IOBUF tx_cec (
 
 logic [2:0] sync_dly0, sync_dly1;
 logic [2:0] bitslip_dly0, bitslip_dly1;
-logic [9:0] deb_dat0, deb_dat1;
+logic [2:0] taps_dly0, taps_dly1;
+logic [9:0] par_data0, par_data0_dly;
+logic [9:0] par_data1, par_data1_dly;
+logic [9:0] par_data2, par_data2_dly;
 always_ff @(posedge clk_p) begin
    sync_dly0 <= synchronized;
    sync_dly1 <= sync_dly0;
@@ -419,21 +477,37 @@ always_ff @(posedge clk_p) begin
    bitslip_dly0 <= bitslip_s;
    bitslip_dly1 <= bitslip_dly0;
 
-   deb_dat0 <= hdmi_data_words[0];
-   deb_dat1 <= deb_dat0;
+   taps_dly0 <= taps_s[0];
+   taps_dly1 <= taps_dly0;
+
+
+    par_data0 <= hdmi_data_word_outputs[0];
+    par_data0_dly <= par_data0;
+    par_data1_dly <= par_data0_dly;
+    par_data2_dly <= par_data1_dly;
+   //par_data0 <= hdmi_fb_data[0]; //hdmi_data_words[0];
+   //par_data0_dly <= par_data0;
+
+//    par_data1 <= hdmi_data_word_outputs[0]; //hdmi_data_words[0];
+//    par_data1_dly <= par_data0_dly;
+
+//    par_data2 <= hdmi_fb_data[2]; //hdmi_data_words[0];
+//    par_data2_dly <= par_data1_dly;
 end
 
 probes pixel_ila_inst (
     .clk_p(clk_p),      // use the slower clock so it doesn't blow up
     .ila0_p(sync_dly1),
     .ila1_p(0),
-    .ila2_p(bitslip_dly1[0]),
-    .ila3_p(bitslip_dly1[1]),
-    .ila4_p(bitslip_dly1[2]),
+    .ila2_p(taps_dly1[0]),
+    .ila3_p(taps_dly1[1]),
+    .ila4_p(taps_dly1[2]),
     .ila5_p(reset_output),
     .ila6_p(serial_clk_locked),
     .ila7_p(0),
-    .ila8_p(deb_dat1)
+    .ila8_p(par_data0_dly),
+    .ila9_p(par_data1_dly),
+    .ila10_p(par_data2_dly)
 );
 
 

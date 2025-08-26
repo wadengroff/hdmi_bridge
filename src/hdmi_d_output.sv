@@ -7,10 +7,11 @@
 
 module hdmi_d_output (
     input logic serial_clk,
-    input logic serial_clk_locked,
+    input logic hpd,
     input logic word_clk,
     input logic [9:0] data_in,
     output logic data_out,
+    output logic data_out_fb,
     output logic reset_out
 );
 
@@ -21,11 +22,13 @@ module hdmi_d_output (
 logic reset = 0;
 assign reset_out = reset;
 
-always @(posedge word_clk or negedge serial_clk_locked) begin
-    if (!serial_clk_locked) begin
+always @(posedge word_clk or negedge hpd) begin
+    if (!hpd) begin
         reset <= 1;
-    end else if (serial_clk_locked) begin
+    end else if (hpd) begin
         reset <= 0;
+    end else begin
+        reset <= 1;
     end
 end
 
@@ -45,7 +48,7 @@ OSERDESE2 #(
    .TBYTE_SRC("FALSE"),    // Tristate byte source (FALSE, TRUE)
    .TRISTATE_WIDTH(1)      // 3-state converter width (1,4)
 ) master (
-   .OFB(),             // 1-bit output: Feedback path for data
+   .OFB(data_out_fb),             // 1-bit output: Feedback path for data
    .OQ(data_out),               // 1-bit output: Data path output
    // SHIFTOUT1 / SHIFTOUT2: 1-bit (each) output: Data output expansion (1-bit each)
    .TBYTEOUT(),   // 1-bit output: Byte group tristate
