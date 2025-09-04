@@ -108,6 +108,11 @@ set_property -dict {PACKAGE_PIN R19 IOSTANDARD LVCMOS33} [get_ports hdmi_tx_hpdn
 set_property -dict {PACKAGE_PIN M17 IOSTANDARD LVCMOS33} [get_ports hdmi_tx_scl_p]
 set_property -dict {PACKAGE_PIN M18 IOSTANDARD LVCMOS33} [get_ports hdmi_tx_sda_p]
 
+
+# SET FALSE PATH FOR ASYNC REGISTERS
+# these are on CDCs that we don't care about
+set_false_path -to [[all_registers] -filter {ASYNC_REG == "TRUE"}]
+
 ## ChipKit Outer Digital Header
 #set_property -dict { PACKAGE_PIN T14   IOSTANDARD LVCMOS33 } [get_ports { ck_io0  }]; #IO_L5P_T0_34            Sch=CK_IO0
 #set_property -dict { PACKAGE_PIN U12   IOSTANDARD LVCMOS33 } [get_ports { ck_io1  }]; #IO_L2N_T0_34            Sch=CK_IO1

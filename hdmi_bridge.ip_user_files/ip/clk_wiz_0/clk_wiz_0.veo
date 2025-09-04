@@ -52,13 +52,14 @@
 //  Output     Output      Phase    Duty Cycle   Pk-to-Pk     Phase
 //   Clock     Freq (MHz)  (degrees)    (%)     Jitter (ps)  Error (ps)
 //----------------------------------------------------------------------------
-// serial_clk__100.00000______0.000______50.0______258.391____301.005
-// serial_clk_n__100.00000____180.000______50.0______258.391____301.005
+// serial_clk__500.00000______0.000______50.0_______97.082_____98.575
+// serial_clk_n__500.00000____180.000______50.0_______97.082_____98.575
+// word_clk__100.00000______0.000______50.0______130.958_____98.575
 //
 //----------------------------------------------------------------------------
 // Input Clock   Freq (MHz)    Input Jitter (UI)
 //----------------------------------------------------------------------------
-// __primary______________20____________0.010
+// __primary_____________100____________0.010
 
 // The following must be inserted into your Verilog file for this
 // core to be instantiated. Change the instance name and port connections
@@ -68,9 +69,12 @@
 
   clk_wiz_0 instance_name
    (
+    .clkfb_in(clkfb_in),     // input clkfb_in
     // Clock out ports
     .serial_clk(serial_clk),     // output serial_clk
     .serial_clk_n(serial_clk_n),     // output serial_clk_n
+    .word_clk(word_clk),     // output word_clk
+    .clkfb_out(clkfb_out),    // output clkfb_out
     // Status and control signals
     .reset(reset), // input reset
     .input_clk_stopped(input_clk_stopped), // output input_clk_stopped

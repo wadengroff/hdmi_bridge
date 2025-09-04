@@ -35,7 +35,7 @@ OSERDESE2 #(
    .SRVAL_TQ(1'b0),        // TQ output value when SR is used (1'b0,1'b1)
    .TBYTE_CTL("FALSE"),    // Enable tristate byte operation (FALSE, TRUE)
    .TBYTE_SRC("FALSE"),    // Tristate byte source (FALSE, TRUE)
-   .TRISTATE_WIDTH(1)      // 3-state converter width (1,4)
+   .TRISTATE_WIDTH(1'b1)      // 3-state converter width (1,4)
 ) master (
    .OFB(data_out_fb),             // 1-bit output: Feedback path for data
    .OQ(data_out),               // 1-bit output: Data path output
@@ -54,18 +54,18 @@ OSERDESE2 #(
    .D6(data_in[5]),
    .D7(data_in[6]),
    .D8(data_in[7]),
-   .OCE(1),                 // 1-bit input: Output data clock enable
+   .OCE(1'b1),                 // 1-bit input: Output data clock enable
    .RST(rst),             // 1-bit input: Reset
    // SHIFTIN1 / SHIFTIN2: 1-bit (each) input: Data input expansion (1-bit each)
    .SHIFTIN1(SHIFTOUT1),
    .SHIFTIN2(SHIFTOUT2),
    // T1 - T4: 1-bit (each) input: Parallel 3-state inputs
-   .T1(0),
-   .T2(0),
-   .T3(0),
-   .T4(0),
-   .TBYTEIN(0),     // 1-bit input: Byte group tristate
-   .TCE(1)              // 1-bit input: 3-state clock enable
+   .T1(1'b0),
+   .T2(1'b0),
+   .T3(1'b0),
+   .T4(1'b0),
+   .TBYTEIN(1'b0),     // 1-bit input: Byte group tristate
+   .TCE(1'b1)              // 1-bit input: 3-state clock enable
 );
 
 

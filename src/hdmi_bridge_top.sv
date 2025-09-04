@@ -152,18 +152,18 @@ logic hdmi_clk_buf;
 // );
 
 
-  // THIS IS NOT ALL WE NEED
-  // THE REASON SYNCRHONIZATION NEEDS TO HAPPEN IS BECAUSE IT'S NOT GUARANTEED FOR
-  // TMDS CLOCK AND DATA TO LINE UP. NEED TO DETECT WITH FANCY BITSLIP LOGIC IN 
-  // SERDES INTERFACE
+
+// trying using clocks directly from the mmcm
 logic serial_clk_unbuff, serial_clk_n_unbuff;  // 5x tmds_clk
 logic serial_clk, serial_clk_n;
 logic serial_clk_locked;
+logic word_clk;
 clk_wiz_0 tmds_mult_5
     (
     // Clock out ports
     .serial_clk(serial_clk),//serial_clk_unbuff),     // output pixel_clk
     .serial_clk_n(serial_clk_n),
+    .word_clk(word_clk),
     // Status and control signals
     .reset(0), // input reset
     .input_clk_stopped(),
@@ -184,23 +184,42 @@ clk_wiz_0 tmds_mult_5
 //     .O(serial_clk_n)
 // );
 
-logic word_clk_prebuf, word_clk;
-BUFR #(
-    .BUFR_DIVIDE("5"),
-    .SIM_DEVICE("7SERIES")
-) div_word_clk (
-    .O(word_clk_prebuf),
-    .CE(1),
-    .CLR(0),
-    .I(serial_clk)
+logic word_clk_global;
+logic serial_clk_global;
+logic serial_clk_n_global;
+
+BUFG glob_word (
+    .I(word_clk),
+    .O(word_clk_global)
 );
 
-BUFG glob_word_clk (
-    .I(word_clk_prebuf),
-    .O(word_clk)
+BUFG glob_serial (
+    .I(serial_clk),
+    .O(serial_clk_global)
 );
 
-// MAYBE ADD A GLOBAL BUFFER FOR SERAIAL
+BUFG glob_serial_n (
+    .I(serial_clk_n),
+    .O(serial_clk_n_global)
+);
+
+// BUFR #(
+//     .BUFR_DIVIDE("5"),
+//     .SIM_DEVICE("7SERIES")
+// ) div_word_clk (
+//     .O(word_clk_prebuf),
+//     .CE(1),
+//     .CLR(0),
+//     .I(serial_clk)
+// );
+
+// BUFG glob_word_clk (
+//     .I(word_clk_prebuf),
+//     .O(word_clk)
+// );
+
+
+// MAYBE ADD A GLOBAL BUFFER FOR SERIAL_CLK
 
 logic clk_300; // USED TO GENERATE TAP DELAYS
 clk_wiz_1 gen_clk300
@@ -266,7 +285,7 @@ end
 
 
 logic [2:0][9:0] hdmi_data_word_outputs;
-always_ff @(posedge word_clk) begin
+always_ff @(posedge word_clk_global) begin
     if (synchronized == 3'b111) begin
         hdmi_data_word_outputs <= hdmi_data_words;
     end else begin
@@ -278,9 +297,9 @@ logic [2:0] hdmi_tx_data_out;
 logic [2:0] hdmi_tx_d_fb;
 for (i = 0; i <= 2; i++) begin
     hdmi_d_output inst_otp (
-        .serial_clk(serial_clk),
+        .serial_clk(serial_clk_global),
         .rst(reset_serdes_reg),
-        .word_clk(word_clk),
+        .word_clk(word_clk_global),
         .data_in(hdmi_data_word_outputs[i]),
         .data_out(hdmi_tx_data_out[i]),
         .data_out_fb(hdmi_tx_d_fb[i])
@@ -295,9 +314,9 @@ for (i = 0; i <= 2; i++) begin
         .SERDES_MODE("Master"),
         .OFB_USED("TRUE")
     ) master_serdes (
-        .serial_clk(serial_clk),
-        .serial_clk_n(serial_clk_n),
-        .word_clk(word_clk),
+        .serial_clk(serial_clk_global),
+        .serial_clk_n(serial_clk_n_global),
+        .word_clk(word_clk_global),
         .D(0),
         .DDLY(0),
         .OFB(hdmi_tx_d_fb[i]),
@@ -320,9 +339,9 @@ for (i = 0; i <= 2; i++) begin
         .SERDES_MODE("Slave"),
         .OFB_USED("TRUE")
     ) slave_serdes (
-        .serial_clk(serial_clk),
-        .serial_clk_n(serial_clk_n),
-        .word_clk(word_clk),
+        .serial_clk(serial_clk_global),
+        .serial_clk_n(serial_clk_n_global),
+        .word_clk(word_clk_global),
         .D(0),
         .DDLY(0),
         .OFB(0),
@@ -341,7 +360,7 @@ OBUFDS #(
     .IOSTANDARD("TMDS_33"),
     .SLEW("FAST")
 ) hdmi_clk_buf_out (
-    .I(word_clk),
+    .I(word_clk_global),
     .O(hdmi_tx_clk_p_p), // output p-side
     .OB(hdmi_tx_clk_n_p) // Output n-side
 );
@@ -488,14 +507,14 @@ IOBUF tx_cec (
 //     end
 // end
 
-logic [2:0] sync_dly0, sync_dly1;
-logic [2:0] bitslip_dly0, bitslip_dly1;
-logic [2:0] taps_dly0, taps_dly1;
-logic [9:0] par_data0, par_data0_dly;
-logic [9:0] par_data1, par_data1_dly;
-logic [9:0] par_data2, par_data2_dly;
-logic rst_dly0, rst_dly1;
-sync_state_t sync_state_dly0, sync_state_dly1;
+(* ASYNC_REG = "TRUE"*) logic [2:0] sync_dly0, sync_dly1;
+(* ASYNC_REG = "TRUE"*) logic [2:0] bitslip_dly0, bitslip_dly1;
+(* ASYNC_REG = "TRUE"*) logic [2:0] taps_dly0, taps_dly1;
+(* ASYNC_REG = "TRUE"*) logic [9:0] par_data0, par_data0_dly;
+(* ASYNC_REG = "TRUE"*) logic [9:0] par_data1, par_data1_dly;
+(* ASYNC_REG = "TRUE"*) logic [9:0] par_data2, par_data2_dly;
+(* ASYNC_REG = "TRUE"*) logic rst_dly0, rst_dly1;
+(* ASYNC_REG = "TRUE"*) sync_state_t sync_state_dly0, sync_state_dly1;
 always_ff @(posedge clk_p) begin
    sync_dly0 <= synchronized;
    sync_dly1 <= sync_dly0;
