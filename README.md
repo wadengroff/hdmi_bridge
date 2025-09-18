@@ -13,3 +13,5 @@
     - This could cause 10-bit characters to be unsynchronized, which will be corrected using bitslip in ISERDESE2.
     - This synchronization will be done by searching for repeated control period words, which should happen at least once every 50 ms according to HDMI standards
     - Currently seeing control words every so often, but do not have full synchronization working yet
+
+![alt text](./docs/hdmi_bridge.png)
