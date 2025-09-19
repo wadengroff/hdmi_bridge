@@ -20,8 +20,9 @@
 //                        2. Discovered that there is a problem with the I2C bus
 //                              - Feedback loop when either side is driven to 0 because of setup. Need to keep track of I2C states
 //
-//
-//
+//    091925     wng      1. Changed the serdes reset to go based on the negative edge of the locked
+//                           clock. This way, it's not driven by a LUT.
+//                        2. Changed clocking topology
 //
 //
 //
@@ -53,6 +54,8 @@ module hdmi_bridge_top (
     input logic hdmi_tx_hpdn_p,
     output logic hdmi_tx_scl_p,
     inout hdmi_tx_sda_p,
+
+    input logic [3:0] buttons_p,
     
     // leds_p
     output logic [3:0] leds_p
@@ -155,15 +158,19 @@ logic hdmi_clk_buf;
 
 // trying using clocks directly from the mmcm
 logic serial_clk_unbuff, serial_clk_n_unbuff;  // 5x tmds_clk
-logic serial_clk, serial_clk_n;
+logic serial_clk_mr, serial_clk_n_mr;
+logic rx_serial_clk, rx_serial_clk_n;
+logic tx_serial_clk, tx_serial_clk_n;
 logic serial_clk_locked;
-logic word_clk;
+logic word_clk_unbuf, word_clk_mr;
+logic rx_word_clk, tx_word_clk;
+
 clk_wiz_0 tmds_mult_5
     (
     // Clock out ports
-    .serial_clk(serial_clk),//serial_clk_unbuff),     // output pixel_clk
-    .serial_clk_n(serial_clk_n),
-    .word_clk(word_clk),
+    .serial_clk(serial_clk_unbuff),//serial_clk_unbuff),     // output pixel_clk
+    .serial_clk_n(serial_clk_n_unbuff),
+    .word_clk(word_clk_unbuf),
     // Status and control signals
     .reset(0), // input reset
     .input_clk_stopped(),
@@ -173,35 +180,101 @@ clk_wiz_0 tmds_mult_5
     .clk_in1_n(hdmi_rx_clk_n_p)    // input clk_in1_n
     );
 
-// 
-// BUFIO buff_serial (
-//     .I(serial_clk_unbuff),
-//     .O(serial_clk)
+
+// ONLY TWO BUFMR COMPONENTS IN EACH CLOCK REGION.
+// SO, WE NEED TO USE A DIFFERENT CLOCKING STRUCTURE THAN ALL ON BUFMRCE
+// instead, put buff_serial_n and buff_serial on one, then derive word_clk from that with a BUFR
+
+// Generates a multiregional clock
+// allows us to send this to the OSERDES module
+BUFMRCE buff_serial (
+    .CE(serial_clk_locked),
+    .I(serial_clk_unbuff),
+    .O(serial_clk_mr)
+);
+
+BUFMRCE buff_serial_n (
+    .CE(serial_clk_locked),
+    .I(serial_clk_n_unbuff),
+    .O(serial_clk_n_mr)
+);
+
+// BUFMRCE buff_word (
+//     .CE(serial_clk_locked),
+//     .I(word_clk_unbuf),
+//     .O(word_clk_mr)
 // );
 
-// BUFIO buff_serial_n (
-//     .I(serial_clk_n_unbuff),
-//     .O(serial_clk_n)
+// Generate the local bufio buffer to drive ISERDESE2
+BUFIO rx_serial_bufio (
+    .I(serial_clk_mr),
+    .O(rx_serial_clk)
+);
+
+BUFIO rx_serial_n_bufio (
+    .I(serial_clk_n_mr),
+    .O(rx_serial_clk_n)
+);
+
+BUFR #(
+    .BUFR_DIVIDE("5")
+) rx_word_bufr(
+    .CE(1),
+    .CLR(0),
+    .I(serial_clk_mr),
+    .O(rx_word_clk)
+);
+
+
+// BUFIO rx_word_bufio (
+//     .I(word_clk_mr),
+//     .O(rx_word_clk)
 // );
+
+// Generate the local bufio buffer to drive OSERDESE2
+BUFIO tx_serial_bufio (
+    .I(serial_clk_mr),
+    .O(tx_serial_clk)
+);
+
+BUFIO tx_serial_n_bufio (
+    .I(serial_clk_n_mr),
+    .O(tx_serial_clk_n)
+);
+
+BUFR #(
+    .BUFR_DIVIDE("5")
+) tx_word_bufr(
+    .CE(1),
+    .CLR(0),
+    .I(serial_clk_mr),
+    .O(tx_word_clk)
+);
+
+// BUFIO tx_word_bufio (
+//     .I(word_clk_mr),
+//     .O(tx_word_clk)
+// );
+
 
 logic word_clk_global;
 logic serial_clk_global;
 logic serial_clk_n_global;
 
-BUFG glob_word (
-    .I(word_clk),
-    .O(word_clk_global)
-);
+// BUFG glob_word (
+//     .I(word_clk),
+//     .O(word_clk_global)
+// );
 
-BUFG glob_serial (
-    .I(serial_clk),
-    .O(serial_clk_global)
-);
+// BUFG glob_serial (
+//     .I(serial_clk),
+//     .O(serial_clk_global)
+// );
 
-BUFG glob_serial_n (
-    .I(serial_clk_n),
-    .O(serial_clk_n_global)
-);
+// BUFG glob_serial_n (
+//     .I(serial_clk_n),
+//     .O(serial_clk_n_global)
+// );
 
 // BUFR #(
 //     .BUFR_DIVIDE("5"),
@@ -254,23 +327,35 @@ logic [2:0] past_50ms_s;
 // Resets if hpd goes down, then sets when word_clk is enabled and hpd
 // asynchronous reset
 logic reset_serdes_reg = 1;
-always @(posedge word_clk or negedge hdmi_rx_hpd_dly1) begin
-    if (!hdmi_rx_hpd_dly1) begin
+always @(posedge rx_word_clk or negedge serial_clk_locked) begin
+    if (!serial_clk_locked) begin
         reset_serdes_reg <= 1;
-    end else if (hdmi_rx_hpd_dly1) begin
-        reset_serdes_reg <= 0;
     end else begin
-        reset_serdes_reg <= 1;
+        reset_serdes_reg <= 0;
     end
 end
 
+
 genvar i;
+// // Instantiate Button Debouncers
+// for (i = 0; i <= 3; i++) begin
+//     button_debouncer #(
+//         .DEBOUNCE_CYCLES(100)
+//     ) inst_debounce (
+//         .clk_p(clk_p)
+//     )
+
+// end
+
+
+
+
 for (i = 0; i <= 2; i++) begin
     hdmi_d_sync inst_sync (
         .clk_125(clk_125),
-        .serial_clk(serial_clk),
-        .serial_clk_n(serial_clk_n),
-        .word_clk(word_clk),
+        .serial_clk(rx_serial_clk),
+        .serial_clk_n(rx_serial_clk_n),
+        .word_clk(rx_word_clk),
         .rst(reset_serdes_reg),
         .sync_en_p(~synchronized[i]),
         .datai_p(hdmi_d[i]),
@@ -297,62 +382,62 @@ logic [2:0] hdmi_tx_data_out;
 logic [2:0] hdmi_tx_d_fb;
 for (i = 0; i <= 2; i++) begin
     hdmi_d_output inst_otp (
-        .serial_clk(serial_clk_global),
+        .serial_clk(tx_serial_clk),
         .rst(reset_serdes_reg),
-        .word_clk(word_clk_global),
+        .word_clk(tx_word_clk),
         .data_in(hdmi_data_word_outputs[i]),
         .data_out(hdmi_tx_data_out[i]),
         .data_out_fb(hdmi_tx_d_fb[i])
     );
 end
 
-// FEEDBACK DATA SYNC
-logic [2:0][9:0] hdmi_fb_data;
-for (i = 0; i <= 2; i++) begin
-    // Instantiate master serdees2
-    serdes_wrapper #(
-        .SERDES_MODE("Master"),
-        .OFB_USED("TRUE")
-    ) master_serdes (
-        .serial_clk(serial_clk_global),
-        .serial_clk_n(serial_clk_n_global),
-        .word_clk(word_clk_global),
-        .D(0),
-        .DDLY(0),
-        .OFB(hdmi_tx_d_fb[i]),
-        .CE(1),
-        .BITSLIP(0),
-        .SHIFTOUT1(shiftout1_s),
-        .SHIFTOUT2(shiftout2_s),
-        .Q1(hdmi_fb_data[i][9]),
-        .Q2(hdmi_fb_data[i][8]),
-        .Q3(hdmi_fb_data[i][7]),
-        .Q4(hdmi_fb_data[i][6]),
-        .Q5(hdmi_fb_data[i][5]),
-        .Q6(hdmi_fb_data[i][4]),
-        .Q7(hdmi_fb_data[i][3]),
-        .Q8(hdmi_fb_data[i][2])
-    );
+// // FEEDBACK DATA SYNC
+// logic [2:0][9:0] hdmi_fb_data;
+// for (i = 0; i <= 2; i++) begin
+//     // Instantiate master serdees2
+//     serdes_wrapper #(
+//         .SERDES_MODE("Master"),
+//         .OFB_USED("TRUE")
+//     ) master_serdes (
+//         .serial_clk(serial_clk_global),
+//         .serial_clk_n(serial_clk_n_global),
+//         .word_clk(word_clk_global),
+//         .D(0),
+//         .DDLY(0),
+//         .OFB(hdmi_tx_d_fb[i]),
+//         .CE(1),
+//         .BITSLIP(0),
+//         .SHIFTOUT1(shiftout1_s),
+//         .SHIFTOUT2(shiftout2_s),
+//         .Q1(hdmi_fb_data[i][9]),
+//         .Q2(hdmi_fb_data[i][8]),
+//         .Q3(hdmi_fb_data[i][7]),
+//         .Q4(hdmi_fb_data[i][6]),
+//         .Q5(hdmi_fb_data[i][5]),
+//         .Q6(hdmi_fb_data[i][4]),
+//         .Q7(hdmi_fb_data[i][3]),
+//         .Q8(hdmi_fb_data[i][2])
+//     );
 
-    // Instantiate slave serdese2
-    serdes_wrapper  #(
-        .SERDES_MODE("Slave"),
-        .OFB_USED("TRUE")
-    ) slave_serdes (
-        .serial_clk(serial_clk_global),
-        .serial_clk_n(serial_clk_n_global),
-        .word_clk(word_clk_global),
-        .D(0),
-        .DDLY(0),
-        .OFB(0),
-        .CE(1),
-        .BITSLIP(bitslip_s),
-        .SHIFTIN1(shiftout1_s),
-        .SHIFTIN2(shiftout2_s),
-        .Q3(hdmi_fb_data[i][1]),     // datasheet said to use these
-        .Q4(hdmi_fb_data[i][0])
-    );
-end
+//     // Instantiate slave serdese2
+//     serdes_wrapper  #(
+//         .SERDES_MODE("Slave"),
+//         .OFB_USED("TRUE")
+//     ) slave_serdes (
+//         .serial_clk(serial_clk_global),
+//         .serial_clk_n(serial_clk_n_global),
+//         .word_clk(word_clk_global),
+//         .D(0),
+//         .DDLY(0),
+//         .OFB(0),
+//         .CE(1),
+//         .BITSLIP(bitslip_s),
+//         .SHIFTIN1(shiftout1_s),
+//         .SHIFTIN2(shiftout2_s),
+//         .Q3(hdmi_fb_data[i][1]),     // datasheet said to use these
+//         .Q4(hdmi_fb_data[i][0])
+//     );
+// end
 
 
 // Output buffer for tx clock

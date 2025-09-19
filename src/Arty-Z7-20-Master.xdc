@@ -7,6 +7,15 @@
 set_property -dict {PACKAGE_PIN H16 IOSTANDARD LVCMOS33} [get_ports clk_p]
 create_clock -period 8.000 -name sys_clk_pin -waveform {0.000 4.000} -add [get_ports clk_p]
 
+# Set false path to async registers
+set_false_path -to $[filter [all_registers -cells] {NAME !~ *ila* && NAME !~ *dbg* && ASYNC_REG == TRUE}]
+set_clock_groups -asynchronous -group [get_clocks sys_clk_pin] -group [get_clocks serial_clk]
+set_clock_groups -asynchronous [get_clocks sys_clk_pin word_clk]
+
+set_property CLOCK_DEDICATED_ROUTE BACKBONE [get_nets tmds_mult_5/inst/clk_in1_clk_wiz_0]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets tmds_mult_5/inst/word_clk]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets tmds_mult_5/inst/serial_clk]
+set_property CLOCK_DEDICATED_ROUTE ANY_CMT_COLUMN [get_nets tmds_mult_5/inst/serial_clk_n]
 
 # SET DEBUG PROPERTY FOR BD ILA
 set_property HDL_ATTRIBUTE.DEBUG true [get_bd_nets {ila0_p_1}]
@@ -35,10 +44,10 @@ set_property -dict {PACKAGE_PIN N16 IOSTANDARD LVCMOS33} [get_ports {leds_p[2]}]
 set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports {leds_p[3]}]
 
 ## Buttons
-#set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { btn[0] }]; #IO_L4P_T0_35 Sch=BTN0
-#set_property -dict { PACKAGE_PIN D20    IOSTANDARD LVCMOS33 } [get_ports { btn[1] }]; #IO_L4N_T0_35 Sch=BTN1
-#set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports { btn[2] }]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
-#set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports { btn[3] }]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
+set_property -dict { PACKAGE_PIN D19    IOSTANDARD LVCMOS33 } [get_ports { buttons_p[0] }]; #IO_L4P_T0_35 Sch=BTN0
+set_property -dict { PACKAGE_PIN D20    IOSTANDARD LVCMOS33 } [get_ports { buttons_p[1] }]; #IO_L4N_T0_35 Sch=BTN1
+set_property -dict { PACKAGE_PIN L20    IOSTANDARD LVCMOS33 } [get_ports { buttons_p[2] }]; #IO_L9N_T1_DQS_AD3N_35 Sch=BTN2
+set_property -dict { PACKAGE_PIN L19    IOSTANDARD LVCMOS33 } [get_ports { buttons_p[3] }]; #IO_L9P_T1_DQS_AD3P_35 Sch=BTN3
 
 ## Pmod Header JA
 #set_property -dict { PACKAGE_PIN Y18   IOSTANDARD LVCMOS33 } [get_ports { ja_p[1] }]; #IO_L17P_T2_34 Sch=JA1_P (Pin 1)
@@ -71,13 +80,13 @@ set_property -dict {PACKAGE_PIN M14 IOSTANDARD LVCMOS33} [get_ports {leds_p[3]}]
 set_property -dict {PACKAGE_PIN H17 IOSTANDARD LVCMOS33} [get_ports hdmi_rx_cec_p]
 set_property -dict {PACKAGE_PIN P19 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_n_p]
 set_property -dict {PACKAGE_PIN N18 IOSTANDARD TMDS_33} [get_ports hdmi_rx_clk_p_p]
-create_clock -period 67.3401 -name hdmi_pix_clk -add [get_ports hdmi_rx_clk_p_p]
+#create_clock -period 67.3401 -name hdmi_pix_clk -add [get_ports hdmi_rx_clk_p_p]
 
 # Create clock group to ignore timing between
-set_clock_groups -asynchronous -group [get_clocks hdmi_pix_clk] -group [get_clocks sys_clk_pin]
+#set_clock_groups -asynchronous -group [get_clocks hdmi_pix_clk] -group [get_clocks sys_clk_pin]
 
 # WORD CLOCKS SHOULD BE SYNCHRONOUS, IGNORE TIMING
-set_clock_groups -group [get_clocks word_clk] -group [get_clocks word_clk_1]
+#set_clock_groups -group [get_clocks word_clk] -group [get_clocks word_clk_1]
 
 set_property -dict {PACKAGE_PIN W20 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_d_n_p[0]}]
 set_property -dict {PACKAGE_PIN V20 IOSTANDARD TMDS_33} [get_ports {hdmi_rx_d_p_p[0]}]

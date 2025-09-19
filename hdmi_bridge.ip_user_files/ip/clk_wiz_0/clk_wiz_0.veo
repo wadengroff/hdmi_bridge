@@ -69,12 +69,10 @@
 
   clk_wiz_0 instance_name
    (
-    .clkfb_in(clkfb_in),     // input clkfb_in
     // Clock out ports
     .serial_clk(serial_clk),     // output serial_clk
     .serial_clk_n(serial_clk_n),     // output serial_clk_n
     .word_clk(word_clk),     // output word_clk
-    .clkfb_out(clkfb_out),    // output clkfb_out
     // Status and control signals
     .reset(reset), // input reset
     .input_clk_stopped(input_clk_stopped), // output input_clk_stopped
